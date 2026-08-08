@@ -385,7 +385,7 @@ Transfer Money
 </button>
 
 <button onclick="show('qrScanner')">
-    📷 QR Scanner
+    📷 QR Code
 </button>
 
 <button onclick="show('history')">
@@ -402,7 +402,8 @@ Delete Account
 
 </div>
 
-<!-- QR SCANNER / QR CODE PAGE -->
+
+<!-- QR CODE PAGE -->
 
 <div id="qrScanner" class="page">
 
@@ -418,7 +419,7 @@ Delete Account
 
     </div>
 
-   <button onclick="shareQR()" class="linkBtn">
+    <button onclick="shareQR()" class="linkBtn">
         📤 Share QR Code
     </button>
 
@@ -427,7 +428,6 @@ Delete Account
     </button>
 
 </div>
-
 <!-- DEPOSIT -->
 
 <div id="deposit" class="page">
@@ -1168,19 +1168,18 @@ async function shareQR(){
 
     try{
 
-        const response = await fetch("qr.png");
+        const response = await fetch("qr.jpeg");
 
         const blob = await response.blob();
 
         const file = new File(
             [blob],
-            "SmartBank-QR.png",
+            "SmartBank-QR.jpeg",
             {
-                type: "image/png"
+                type: blob.type
             }
         );
 
-        // Mobile / browser file sharing
         if(
             navigator.share &&
             navigator.canShare &&
@@ -1193,47 +1192,29 @@ async function shareQR(){
 
                 title:"Smart Bank QR Code",
 
-                text:"Scan this QR code for Smart Bank.",
+                text:"Scan my Smart Bank QR Code",
 
                 files:[file]
 
             });
 
-        }
-        else{
-
-            // If direct image sharing isn't supported
-            const url = URL.createObjectURL(blob);
-
-            const link = document.createElement("a");
-
-            link.href = url;
-            link.download = "SmartBank-QR.png";
-
-            document.body.appendChild(link);
-
-            link.click();
-
-            document.body.removeChild(link);
-
-            URL.revokeObjectURL(url);
+        }else{
 
             alert(
-                "QR code downloaded successfully. " +
-                "Now you can share it on WhatsApp or any other app."
+                "This browser does not support direct image sharing."
             );
+
         }
 
+    }catch(error){
+
+        console.log(error);
+
+        alert("Failed to share the QR code .");
+
     }
-    catch(error){
 
-        console.error(error);
-
-        alert("QR Code can not be shared.");
-
-    }
 }
-
 </script>
 
 </body>
