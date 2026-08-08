@@ -1,99 +1,297 @@
 <!DOCTYPE html>
-<!-- saved from url=(0031)http://127.0.0.1:5500/code.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title> Smart Bank</title>
 
 <style>
+/* ================================
+   RESET
+================================ */
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
 }
+
+
+/* ================================
+   BODY
+================================ */
 
 body{
-background:linear-gradient(135deg,#1e3c72,#2a5298);
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
+
+
+/* ================================
+   MAIN CONTAINER
+   Normal pages = 420px
+================================ */
 
 .container{
-width:420px;
-background:#fff;
-padding:25px;
-border-radius:15px;
-box-shadow:0 0 20px rgba(0,0,0,.3);
+    width:420px;
+    max-width:95%;
+    background:#fff;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 0 20px rgba(0,0,0,.3);
 }
 
+
+/* ================================
+   ONLY TRANSACTION HISTORY BIG
+================================ */
+
+.container:has(#history.active){
+    width:95%;
+    max-width:1200px;
+}
+
+
+/* ================================
+   PAGES
+================================ */
+
 .page{
-display:none;
+    display:none;
 }
 
 .active{
-display:block;
+    display:block;
 }
+
+
+/* ================================
+   HEADINGS
+================================ */
 
 h2{
-text-align:center;
-color:#1e3c72;
-margin-bottom:20px;
+    text-align:center;
+    color:#1e3c72;
+    margin-bottom:20px;
 }
+
+
+/* ================================
+   INPUTS
+================================ */
 
 input{
-width:100%;
-padding:12px;
-margin:8px 0;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:15px;
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:15px;
 }
 
+
+/* ================================
+   BUTTONS
+================================ */
+
 button{
-width:100%;
-padding:12px;
-margin-top:10px;
-background:#1e3c72;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-size:16px;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    background:#1e3c72;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
 }
 
 button:hover{
-background:#2a5298;
+    background:#2a5298;
 }
 
-.card{
-background:#1e3c72;
-color:white;
-padding:20px;
-border-radius:12px;
-margin:20px 0;
-text-align:center;
-}
 
-.transaction{
-background:#f2f2f2;
-padding:12px;
-margin:10px 0;
-border-radius:8px;
-line-height:25px;
-}
+/* ================================
+   GREEN BUTTON
+================================ */
 
 .linkBtn{
-background:#28a745;
+    background:#28a745;
 }
 
 .linkBtn:hover{
-background:#1f8b39;
+    background:#1f8b39;
 }
 
+
+/* ================================
+   BALANCE CARD
+================================ */
+
+.card{
+    background:#1e3c72;
+    color:white;
+    padding:20px;
+    border-radius:12px;
+    margin:20px 0;
+    text-align:center;
+}
+
+
+/* ================================
+   TRANSACTION HISTORY
+================================ */
+
+#history{
+    width:100%;
+}
+
+#historyData{
+    width:100%;
+
+    /* 4 TRANSACTIONS IN ONE ROW */
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+
+    gap:15px;
+}
+
+
+/* ================================
+   EACH TRANSACTION BOX
+================================ */
+
+#historyData .transaction{
+    width:100%;
+    background:#f2f2f2;
+    padding:15px;
+    margin:0;
+    border-radius:8px;
+    line-height:25px;
+
+    display:block;
+
+    border:1px solid #e0e0e0;
+}
+
+
+/* ================================
+   TRANSACTION TITLE
+================================ */
+
+.transaction .transaction-title{
+    font-weight:bold;
+    font-size:17px;
+    color:#1e3c72;
+
+    border-bottom:1px solid #ddd;
+
+    padding-bottom:7px;
+    margin-bottom:10px;
+}
+
+
+/* ================================
+   QR SCANNER
+================================ */
+
+#reader{
+    width:100%;
+    max-width:350px;
+    margin:15px auto;
+    overflow:hidden;
+    border-radius:12px;
+}
+
+#reader video{
+    width:100% !important;
+    border-radius:12px;
+}
+
+
+/* ================================
+   SCAN RESULT
+================================ */
+
+#scanResult{
+    text-align:center;
+    margin:15px 0;
+    font-weight:bold;
+    color:#1e3c72;
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media(max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    .container{
+        width:95%;
+        max-width:95%;
+        padding:15px;
+    }
+
+    /* History still bigger than normal content */
+    .container:has(#history.active){
+        width:95%;
+        max-width:95%;
+    }
+
+    /* 2 TRANSACTION BOXES PER ROW */
+    #historyData{
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+    }
+
+    #historyData .transaction{
+        padding:12px;
+        font-size:14px;
+    }
+
+}
+
+
+/* ================================
+   VERY SMALL MOBILE
+================================ */
+
+@media(max-width:400px){
+
+    #historyData{
+        grid-template-columns:1fr;
+    }
+
+}
+
+/* ================================
+   QR CODE
+================================ */
+
+.qr-box{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:10px;
+}
+
+.qr-box img{
+    width:300px;
+    max-width:100%;
+    height:auto;
+    display:block;
+    border-radius:8px;
+}
 </style>
 </head>
 
@@ -151,7 +349,7 @@ Create Account
 </button>
 
 
-<button onclick="show(&#39;login&#39;)">
+<button onclick="show('login')">
 Back To Login
 </button>
 
@@ -164,7 +362,7 @@ Back To Login
 
 <h2>🏦 Dashboard</h2>
 
-<h3 id="welcome">Welcome Ridham</h3>
+<h3 id="welcome"></h3>
 
 <div class="card">
 
@@ -174,19 +372,23 @@ Back To Login
 
 </div>
 
-<button onclick="show(&#39;deposit&#39;)">
+<button onclick="show('deposit')">
 Deposit Money
 </button>
 
-<button onclick="show(&#39;withdraw&#39;)">
+<button onclick="show('withdraw')">
 Withdraw Money
 </button>
 
-<button onclick="show(&#39;transfer&#39;)">
+<button onclick="show('transfer')">
 Transfer Money
 </button>
 
-<button onclick="show(&#39;history&#39;)">
+<button onclick="show('qrScanner')">
+    📷 QR Scanner
+</button>
+
+<button onclick="show('history')">
 Transaction History
 </button>
 
@@ -200,19 +402,48 @@ Delete Account
 
 </div>
 
+<!-- QR SCANNER / QR CODE PAGE -->
+
+<div id="qrScanner" class="page">
+
+    <h2>📷 Smart Bank QR</h2>
+
+    <div class="qr-box">
+
+        <img
+            id="bankQR"
+            src="qr.jpeg"
+            alt="Smart Bank QR Code"
+        >
+
+    </div>
+
+   <button onclick="shareQR()" class="linkBtn">
+        📤 Share QR Code
+    </button>
+
+    <button onclick="show('dashboard')">
+        ← Back To Dashboard
+    </button>
+
+</div>
+
 <!-- DEPOSIT -->
 
 <div id="deposit" class="page">
 
 <h2>Deposit Money</h2>
 
-<input id="depositAmount" type="number" placeholder="Enter Amount">
+<input
+id="depositAmount"
+type="number"
+placeholder="Enter Amount">
 
 <button onclick="deposit()">
 Deposit
 </button>
 
-<button onclick="show(&#39;dashboard&#39;)">
+<button onclick="show('dashboard')">
 Back
 </button>
 
@@ -224,13 +455,16 @@ Back
 
 <h2>Withdraw Money</h2>
 
-<input id="withdrawAmount" type="number" placeholder="Enter Amount">
+<input
+id="withdrawAmount"
+type="number"
+placeholder="Enter Amount">
 
 <button onclick="withdraw()">
 Withdraw
 </button>
 
-<button onclick="show(&#39;dashboard&#39;)">
+<button onclick="show('dashboard')">
 Back
 </button>
 
@@ -242,15 +476,20 @@ Back
 
 <h2>Transfer Money</h2>
 
-<input id="receiver" placeholder="Receiver Username">
+<input
+id="receiver"
+placeholder="Receiver Username">
 
-<input id="transferAmount" type="number" placeholder="Enter Amount">
+<input
+id="transferAmount"
+type="number"
+placeholder="Enter Amount">
 
 <button onclick="transfer()">
 Send Money
 </button>
 
-<button onclick="show(&#39;dashboard&#39;)">
+<button onclick="show('dashboard')">
 Back
 </button>
 
@@ -264,7 +503,7 @@ Back
 
 <div id="historyData"></div>
 
-<button onclick="show(&#39;dashboard&#39;)">
+<button onclick="show('dashboard')">
 Back
 </button>
 
@@ -860,17 +1099,34 @@ box.innerHTML += `
 
 <div class="transaction">
 
-<b>${t.type}</b><br><br>
+<div class="transaction-title">
+    ${t.type}
+</div>
 
-<b>From :</b> ${t.from}<br>
+<div>
+    <b>From:</b><br>
+    ${t.from}
+</div>
 
-<b>To :</b> ${t.to}<br>
+<div>
+    <b>To:</b><br>
+    ${t.to}
+</div>
 
-<b>Amount :</b> ₹${t.amount}<br>
+<div>
+    <b>Amount:</b><br>
+    ₹${t.amount}
+</div>
 
-<b>Remaining Balance :</b> ₹${t.balance}<br>
+<div>
+    <b>Balance:</b><br>
+    ₹${t.balance}
+</div>
 
-<b>Date :</b> ${t.date}
+<div>
+    <b>Date:</b><br>
+    ${t.date}
+</div>
 
 </div>
 
@@ -904,47 +1160,84 @@ show("dashboard");
 
 }
 
+// ================================
+// SHARE QR IMAGE
+// ================================
+
+async function shareQR(){
+
+    try{
+
+        const response = await fetch("qr.png");
+
+        const blob = await response.blob();
+
+        const file = new File(
+            [blob],
+            "SmartBank-QR.png",
+            {
+                type: "image/png"
+            }
+        );
+
+        // Mobile / browser file sharing
+        if(
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({
+                files:[file]
+            })
+        ){
+
+            await navigator.share({
+
+                title:"Smart Bank QR Code",
+
+                text:"Scan this QR code for Smart Bank.",
+
+                files:[file]
+
+            });
+
+        }
+        else{
+
+            // If direct image sharing isn't supported
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "SmartBank-QR.png";
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
+
+            alert(
+                "QR code downloaded successfully. " +
+                "Now you can share it on WhatsApp or any other app."
+            );
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert("QR Code can not be shared.");
+
+    }
+}
+
 </script>
 
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
+</body>
+</html>
 
-
-
-</body></html>
+<!-- localStorage.clear()
+JSON.parse(localStorage.getItem("users")) -->
