@@ -339,7 +339,7 @@ Forgot Password
 
 <input id="newPhone" placeholder="Phone Number">
 
-<input id="newEmail" type="email" placeholder="Gmail">
+<input id="newEmail" type="email" placeholder="Email">
 
 <input id="newBalance" type="number" placeholder="Starting Balance">
 
@@ -420,7 +420,7 @@ Delete Account
     </div>
 
     <button onclick="shareQR()" class="linkBtn">
-        📤 Share QR Code
+        📤 Share Bank QR Code 
     </button>
 
     <button onclick="show('dashboard')">
@@ -706,7 +706,7 @@ async function forgotPassword(){
     }
 
     let email =
-        prompt("Enter your Gmail");
+        prompt("Enter your Email");
 
     if(!email){
         return;
