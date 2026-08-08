@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)http://127.0.0.1:5500/code.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Smart Bank</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+width:420px;
+background:#fff;
+padding:25px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+.page{
+display:none;
+}
+
+.active{
+display:block;
+}
+
+h2{
+text-align:center;
+color:#1e3c72;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+background:#1e3c72;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+}
+
+button:hover{
+background:#2a5298;
+}
+
+.card{
+background:#1e3c72;
+color:white;
+padding:20px;
+border-radius:12px;
+margin:20px 0;
+text-align:center;
+}
+
+.transaction{
+background:#f2f2f2;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+line-height:25px;
+}
+
+.linkBtn{
+background:#28a745;
+}
+
+.linkBtn:hover{
+background:#1f8b39;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+
+<div id="login" class="page active">
+
+<h2>🏦 Smart Bank Login</h2>
+
+
+
+<input id="user" placeholder="Username">
+
+<!-- <input id="phone" placeholder="Phone Number">
+
+<input id="email" type="email" placeholder="Gmail"> -->
+
+<input id="pass" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<button class="linkBtn" onclick="signup()">
+Create Account
+</button>
+
+<button onclick="forgotPassword()">
+Forgot Password
+</button>
+
+</div>
+
+<!-- CREATE ACCOUNT PAGE -->
+
+<div id="signup" class="page">
+
+<h2>🏦 Create Account</h2>
+
+<input id="newUsername" placeholder="Create Username">
+
+<input id="newPassword" type="password" placeholder="Create Password">
+
+<input id="newPhone" placeholder="Phone Number">
+
+<input id="newEmail" type="email" placeholder="Gmail">
+
+<input id="newBalance" type="number" placeholder="Starting Balance">
+
+
+<button onclick="createAccount()">
+Create Account
+</button>
+
+
+<button onclick="show(&#39;login&#39;)">
+Back To Login
+</button>
+
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="page">
+
+<h2>🏦 Dashboard</h2>
+
+<h3 id="welcome">Welcome Ridham</h3>
+
+<div class="card">
+
+<h3>Available Balance</h3>
+
+<h1 id="balance">₹0</h1>
+
+</div>
+
+<button onclick="show(&#39;deposit&#39;)">
+Deposit Money
+</button>
+
+<button onclick="show(&#39;withdraw&#39;)">
+Withdraw Money
+</button>
+
+<button onclick="show(&#39;transfer&#39;)">
+Transfer Money
+</button>
+
+<button onclick="show(&#39;history&#39;)">
+Transaction History
+</button>
+
+<button onclick="logout()">
+Logout
+</button>
+
+<button onclick="deleteAccount()">
+Delete Account
+</button>
+
+</div>
+
+<!-- DEPOSIT -->
+
+<div id="deposit" class="page">
+
+<h2>Deposit Money</h2>
+
+<input id="depositAmount" type="number" placeholder="Enter Amount">
+
+<button onclick="deposit()">
+Deposit
+</button>
+
+<button onclick="show(&#39;dashboard&#39;)">
+Back
+</button>
+
+</div>
+
+<!-- WITHDRAW -->
+
+<div id="withdraw" class="page">
+
+<h2>Withdraw Money</h2>
+
+<input id="withdrawAmount" type="number" placeholder="Enter Amount">
+
+<button onclick="withdraw()">
+Withdraw
+</button>
+
+<button onclick="show(&#39;dashboard&#39;)">
+Back
+</button>
+
+</div>
+
+<!-- TRANSFER -->
+
+<div id="transfer" class="page">
+
+<h2>Transfer Money</h2>
+
+<input id="receiver" placeholder="Receiver Username">
+
+<input id="transferAmount" type="number" placeholder="Enter Amount">
+
+<button onclick="transfer()">
+Send Money
+</button>
+
+<button onclick="show(&#39;dashboard&#39;)">
+Back
+</button>
+
+</div>
+
+<!-- HISTORY -->
+
+<div id="history" class="page">
+
+<h2>Transaction History</h2>
+
+<div id="historyData"></div>
+
+<button onclick="show(&#39;dashboard&#39;)">
+Back
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let currentUser =
+localStorage.getItem("currentUser");
+
+function show(id){
+
+document.querySelectorAll(".page")
+.forEach(page=>{
+page.classList.remove("active");
+});
+
+document.getElementById(id)
+.classList.add("active");
+
+update();
+
+if(id=="history"){
+loadHistory();
+}
+
+}
+
+// CREATE ACCOUNT
+
+// function signup(){
+
+// let username =
+// prompt("Create Username");
+
+// let password =
+// prompt("Create Password");
+
+// let phone =
+// prompt("Enter Phone Number");
+
+// let email =
+// prompt("Enter Gmail");
+
+// let balance =
+// Number(prompt("Starting Balance"));
+
+// if(
+// !username ||
+// !password ||
+// !phone ||
+// !email ||
+// isNaN(balance) ||
+// balance<0
+// ){
+
+// alert("Invalid Details");
+// return;
+
+// }
+
+// let users =
+// JSON.parse(localStorage.getItem("users"))
+// ||[];
+
+// if(users.find(u=>u.username==username)){
+
+// alert("Username Already Exists");
+// return;
+
+// }
+
+// users.push({
+
+// username,
+// password,
+// phone,
+// email,
+// balance,
+
+// transactions:[]
+
+// });
+
+// localStorage.setItem(
+// "users",
+// JSON.stringify(users)
+// );
+
+// alert("Account Created Successfully");
+
+// }
+
+// // FORGOT PASSWORD
+
+// function forgotPassword(){
+
+// let username =
+// prompt("Enter Username");
+
+// let phone =
+// prompt("Enter Phone Number");
+
+// let email =
+// prompt("Enter Gmail");
+
+// let users =
+// JSON.parse(localStorage.getItem("users"))
+// ||[];
+
+// let user =
+// users.find(u=>
+
+// u.username==username &&
+// u.phone==phone &&
+// u.email==email
+
+// );
+
+// if(user){
+
+// let newPass =
+// prompt("Enter New Password");
+
+// if(newPass){
+
+// user.password=newPass;
+
+// localStorage.setItem(
+// "users",
+// JSON.stringify(users)
+// );
+
+// alert("Password Changed");
+
+// }
+
+// }else{
+
+// alert("Details Not Matched");
+
+// }
+
+// }
+
+// CREATE ACCOUNT
+function signup(){
+
+show("signup");
+
+}
+
+
+
+function createAccount(){
+
+
+let username =
+document.getElementById("newUsername").value;
+
+
+let password =
+document.getElementById("newPassword").value;
+
+
+let phone =
+document.getElementById("newPhone").value;
+
+
+let email =
+document.getElementById("newEmail").value;
+
+
+let balance =
+Number(document.getElementById("newBalance").value);
+
+
+
+if(
+!username ||
+!password ||
+!phone ||
+!email ||
+isNaN(balance) ||
+balance < 0
+){
+
+alert("Please Fill All Details");
+return;
+
+}
+
+
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+
+
+if(users.find(u=>u.username==username)){
+
+alert("Username Already Exists");
+return;
+
+}
+
+
+
+users.push({
+
+username,
+password,
+phone,
+email,
+balance,
+
+transactions:[]
+
+});
+
+
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+
+
+alert("Account Created Successfully");
+
+
+// clear form
+
+document.getElementById("newUsername").value="";
+document.getElementById("newPassword").value="";
+document.getElementById("newPhone").value="";
+document.getElementById("newEmail").value="";
+document.getElementById("newBalance").value="";
+
+
+show("login");
+
+
+}
+// LOGIN
+function login(){
+
+    let username = document.getElementById("user").value;
+    //let phone = document.getElementById("phone").value;
+    // let email = document.getElementById("email").value;
+    let password = document.getElementById("pass").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let user = users.find(u =>
+        u.username === username &&
+        // u.phone === phone &&
+        // u.email === email &&
+        u.password === password
+    );
+
+    if(user){
+
+        currentUser = username;
+
+        localStorage.setItem("currentUser", username);
+
+        // Inputs clear
+        document.getElementById("user").value = "";
+        // document.getElementById("phone").value = "";
+        // document.getElementById("email").value = "";
+        document.getElementById("pass").value = "";
+
+        show("dashboard");
+
+    }else{
+
+        alert("Invalid details.");
+
+    }
+
+}
+function deleteAccount(){
+
+let confirmDelete =
+confirm("Do you really want to delete your account?");
+
+
+if(!confirmDelete){
+return;
+}
+
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+
+let newUsers =
+users.filter(u=>u.username!=currentUser);
+
+
+
+localStorage.setItem(
+"users",
+JSON.stringify(newUsers)
+);
+
+
+
+currentUser=null;
+
+localStorage.removeItem("currentUser");
+
+
+alert("Account Deleted Successfully");
+
+
+show("login");
+
+
+}
+// UPDATE DASHBOARD
+
+function update(){
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let user =
+users.find(u=>u.username==currentUser);
+
+if(user){
+
+document.getElementById("welcome").innerHTML =
+"Welcome " + user.username;
+
+document.getElementById("balance").innerHTML =
+"₹" + user.balance;
+
+}
+
+}
+
+// DEPOSIT
+
+function deposit(){
+
+let amount =
+Number(document.getElementById("depositAmount").value);
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let user =
+users.find(u=>u.username==currentUser);
+
+if(amount>0){
+
+user.balance += amount;
+
+if(!user.transactions){
+
+user.transactions=[];
+
+}
+
+user.transactions.push({
+
+type:"Deposit",
+
+from:"Bank",
+
+to:user.username,
+
+amount:amount,
+
+balance:user.balance,
+
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+document.getElementById("depositAmount").value="";
+
+update();
+
+alert("Money Deposited Successfully");
+
+}
+else{
+
+alert("Enter Valid Amount");
+
+}
+
+}
+
+// WITHDRAW
+
+function withdraw(){
+
+let amount =
+Number(document.getElementById("withdrawAmount").value);
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let user =
+users.find(u=>u.username==currentUser);
+
+if(amount>0 && amount<=user.balance){
+
+user.balance -= amount;
+
+if(!user.transactions){
+
+user.transactions=[];
+
+}
+
+user.transactions.push({
+
+type:"Withdraw",
+
+from:user.username,
+
+to:"Cash",
+
+amount:amount,
+
+balance:user.balance,
+
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+document.getElementById("withdrawAmount").value="";
+
+update();
+
+alert("Withdraw Successful");
+
+}
+else{
+
+alert("Insufficient Balance");
+
+}
+
+}
+
+// TRANSFER
+
+function transfer(){
+
+let receiver =
+document.getElementById("receiver").value;
+
+let amount =
+Number(document.getElementById("transferAmount").value);
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let sender =
+users.find(u=>u.username==currentUser);
+
+let receiverUser =
+users.find(u=>u.username==receiver);
+
+if(!receiverUser){
+
+alert("Receiver Not Found");
+return;
+
+}
+
+if(amount<=0 || amount>sender.balance){
+
+alert("Invalid Amount");
+return;
+
+}
+
+if(!sender.transactions){
+
+sender.transactions=[];
+
+}
+
+if(!receiverUser.transactions){
+
+receiverUser.transactions=[];
+
+}
+
+sender.balance -= amount;
+
+receiverUser.balance += amount;
+
+// Sender History
+
+sender.transactions.push({
+
+type:"Money Sent",
+
+from:sender.username,
+
+to:receiverUser.username,
+
+amount:amount,
+
+balance:sender.balance,
+
+date:new Date().toLocaleString()
+
+});
+
+// Receiver History
+
+receiverUser.transactions.push({
+
+type:"Money Received",
+
+from:sender.username,
+
+to:receiverUser.username,
+
+amount:amount,
+
+balance:receiverUser.balance,
+
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+document.getElementById("receiver").value="";
+document.getElementById("transferAmount").value="";
+
+update();
+
+alert("Transfer Successful");
+
+}
+// TRANSACTION HISTORY
+
+function loadHistory(){
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+let user =
+users.find(u=>u.username==currentUser);
+
+let box =
+document.getElementById("historyData");
+
+box.innerHTML = "";
+
+if(!user || !user.transactions || user.transactions.length==0){
+
+box.innerHTML =
+"<h3 style='text-align:center;'>No Transaction Found</h3>";
+
+return;
+
+}
+
+let history =
+[...user.transactions].reverse();
+
+history.forEach(t=>{
+
+box.innerHTML += `
+
+<div class="transaction">
+
+<b>${t.type}</b><br><br>
+
+<b>From :</b> ${t.from}<br>
+
+<b>To :</b> ${t.to}<br>
+
+<b>Amount :</b> ₹${t.amount}<br>
+
+<b>Remaining Balance :</b> ₹${t.balance}<br>
+
+<b>Date :</b> ${t.date}
+
+</div>
+
+`;
+
+});
+
+}
+
+// LOGOUT
+
+function logout(){
+
+currentUser = null;
+
+localStorage.removeItem("currentUser");
+
+show("login");
+
+}
+
+// AUTO LOGIN
+
+window.onload = function(){
+
+if(currentUser){
+
+show("dashboard");
+
+}
+
+}
+
+</script>
+
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+
+
+</body></html>
