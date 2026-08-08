@@ -518,138 +518,21 @@ localStorage.getItem("currentUser");
 
 function show(id){
 
-document.querySelectorAll(".page")
-.forEach(page=>{
-page.classList.remove("active");
-});
+    document.querySelectorAll(".page").forEach(page=>{
+        page.classList.remove("active");
+    });
 
-document.getElementById(id)
-.classList.add("active");
+    document.getElementById(id).classList.add("active");
 
-update();
+    if(currentUser){
+        update();
+    }
 
-if(id=="history"){
-loadHistory();
+    if(id === "history"){
+        loadHistory();
+    }
 }
 
-}
-
-// CREATE ACCOUNT
-
-// function signup(){
-
-// let username =
-// prompt("Create Username");
-
-// let password =
-// prompt("Create Password");
-
-// let phone =
-// prompt("Enter Phone Number");
-
-// let email =
-// prompt("Enter Gmail");
-
-// let balance =
-// Number(prompt("Starting Balance"));
-
-// if(
-// !username ||
-// !password ||
-// !phone ||
-// !email ||
-// isNaN(balance) ||
-// balance<0
-// ){
-
-// alert("Invalid Details");
-// return;
-
-// }
-
-// let users =
-// JSON.parse(localStorage.getItem("users"))
-// ||[];
-
-// if(users.find(u=>u.username==username)){
-
-// alert("Username Already Exists");
-// return;
-
-// }
-
-// users.push({
-
-// username,
-// password,
-// phone,
-// email,
-// balance,
-
-// transactions:[]
-
-// });
-
-// localStorage.setItem(
-// "users",
-// JSON.stringify(users)
-// );
-
-// alert("Account Created Successfully");
-
-// }
-
-// // FORGOT PASSWORD
-
-// function forgotPassword(){
-
-// let username =
-// prompt("Enter Username");
-
-// let phone =
-// prompt("Enter Phone Number");
-
-// let email =
-// prompt("Enter Gmail");
-
-// let users =
-// JSON.parse(localStorage.getItem("users"))
-// ||[];
-
-// let user =
-// users.find(u=>
-
-// u.username==username &&
-// u.phone==phone &&
-// u.email==email
-
-// );
-
-// if(user){
-
-// let newPass =
-// prompt("Enter New Password");
-
-// if(newPass){
-
-// user.password=newPass;
-
-// localStorage.setItem(
-// "users",
-// JSON.stringify(users)
-// );
-
-// alert("Password Changed");
-
-// }
-
-// }else{
-
-// alert("Details Not Matched");
-
-// }
-
-// }
 
 // CREATE ACCOUNT
 function signup(){
@@ -658,505 +541,747 @@ show("signup");
 
 }
 
+async function createAccount(){
 
+    let username =
+        document.getElementById("newUsername").value.trim();
 
-function createAccount(){
+    let password =
+        document.getElementById("newPassword").value;
 
+    let phone =
+        document.getElementById("newPhone").value.trim();
 
-let username =
-document.getElementById("newUsername").value;
+    let email =
+        document.getElementById("newEmail").value.trim();
 
+    let balance =
+        Number(document.getElementById("newBalance").value);
 
-let password =
-document.getElementById("newPassword").value;
+    if(
+        !username ||
+        !password ||
+        !phone ||
+        !email ||
+        isNaN(balance) ||
+        balance < 0
+    ){
+        alert("Please Fill All Details");
+        return;
+    }
 
+    try{
 
-let phone =
-document.getElementById("newPhone").value;
+        const { doc, getDoc, setDoc } =
+            window.firebaseFunctions;
 
+        const userRef =
+            doc(window.db, "users", username);
 
-let email =
-document.getElementById("newEmail").value;
+        const userSnap =
+            await getDoc(userRef);
 
+        if(userSnap.exists()){
+            alert("Username Already Exists");
+            return;
+        }
 
-let balance =
-Number(document.getElementById("newBalance").value);
+        await setDoc(userRef, {
 
+            username: username,
+            password: password,
+            phone: phone,
+            email: email,
+            balance: balance,
+            transactions: [],
+            createdAt: new Date().toISOString()
 
+        });
 
-if(
-!username ||
-!password ||
-!phone ||
-!email ||
-isNaN(balance) ||
-balance < 0
-){
+        alert("Account Created Successfully!");
 
-alert("Please Fill All Details");
-return;
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newPhone").value = "";
+        document.getElementById("newEmail").value = "";
+        document.getElementById("newBalance").value = "";
 
+        show("login");
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Account creation failed: " +
+            error.message
+        );
+
+    }
 }
 
+//login
+async function login(){
 
+    let username =
+        document.getElementById("user").value.trim();
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    let password =
+        document.getElementById("pass").value;
 
+    if(!username || !password){
+        alert("Please enter username and password");
+        return;
+    }
 
+    try{
 
-if(users.find(u=>u.username==username)){
+        const { doc, getDoc } =
+            window.firebaseFunctions;
 
-alert("Username Already Exists");
-return;
+        // Firebase se user find karo
+        const userRef =
+            doc(window.db, "users", username);
 
-}
+        const userSnap =
+            await getDoc(userRef);
 
+        if(!userSnap.exists()){
+            alert("User Not Found");
+            return;
+        }
 
+        const user =
+            userSnap.data();
 
-users.push({
+        // Password check
+        if(user.password !== password){
+            alert("Invalid Password");
+            return;
+        }
 
-username,
-password,
-phone,
-email,
-balance,
-
-transactions:[]
-
-});
-
-
-
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
-
-
-
-alert("Account Created Successfully");
-
-
-// clear form
-
-document.getElementById("newUsername").value="";
-document.getElementById("newPassword").value="";
-document.getElementById("newPhone").value="";
-document.getElementById("newEmail").value="";
-document.getElementById("newBalance").value="";
-
-
-show("login");
-
-
-}
-// LOGIN
-function login(){
-
-    let username = document.getElementById("user").value;
-    //let phone = document.getElementById("phone").value;
-    // let email = document.getElementById("email").value;
-    let password = document.getElementById("pass").value;
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    let user = users.find(u =>
-        u.username === username &&
-        // u.phone === phone &&
-        // u.email === email &&
-        u.password === password
-    );
-
-    if(user){
-
+        // Login successful
         currentUser = username;
 
-        localStorage.setItem("currentUser", username);
+        localStorage.setItem(
+            "currentUser",
+            username
+        );
 
-        // Inputs clear
+        // Login inputs clear
         document.getElementById("user").value = "";
-        // document.getElementById("phone").value = "";
-        // document.getElementById("email").value = "";
         document.getElementById("pass").value = "";
 
         show("dashboard");
 
-    }else{
+    }
+    catch(error){
 
-        alert("Invalid details.");
+        console.error(error);
+
+        alert(
+            "Login failed: " +
+            error.message
+        );
 
     }
 
 }
-function deleteAccount(){
+// forget paaaword 
+async function forgotPassword(){
 
-let confirmDelete =
-confirm("Do you really want to delete your account?");
+    let username =
+        prompt("Enter your Username");
+
+    if(!username){
+        return;
+    }
+
+    let phone =
+        prompt("Enter your Phone Number");
+
+    if(!phone){
+        return;
+    }
+
+    let email =
+        prompt("Enter your Gmail");
+
+    if(!email){
+        return;
+    }
+
+    try{
+
+        const {
+            doc,
+            getDoc,
+            updateDoc
+        } = window.firebaseFunctions;
 
 
-if(!confirmDelete){
-return;
+        // Firebase user document
+        const userRef =
+            doc(window.db, "users", username);
+
+        const userSnap =
+            await getDoc(userRef);
+
+
+        if(!userSnap.exists()){
+
+            alert("User Not Found");
+            return;
+
+        }
+
+
+        const user =
+            userSnap.data();
+
+
+        // Phone + Email verify
+        if(
+            user.phone !== phone ||
+            user.email !== email
+        ){
+
+            alert("Phone Number or Gmail does not match");
+            return;
+
+        }
+
+
+        let newPassword =
+            prompt("Enter New Password");
+
+
+        if(!newPassword){
+
+            alert("Password cannot be empty");
+            return;
+
+        }
+
+
+        // Update password in Firebase
+        await updateDoc(userRef, {
+
+            password: newPassword
+
+        });
+
+
+        alert("Password Changed Successfully!");
+
+
+        // Login fields clear
+        document.getElementById("user").value = "";
+        document.getElementById("pass").value = "";
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Password reset failed: " +
+            error.message
+        );
+
+    }
+
 }
+//logout
+function logout(){
 
+    currentUser = null;
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    localStorage.removeItem("currentUser");
 
+    // Dashboard data clear
+    document.getElementById("welcome").innerHTML = "";
+    document.getElementById("balance").innerHTML = "₹0";
 
-let newUsers =
-users.filter(u=>u.username!=currentUser);
+    // Login page show
+    document.querySelectorAll(".page").forEach(page=>{
+        page.classList.remove("active");
+    });
 
-
-
-localStorage.setItem(
-"users",
-JSON.stringify(newUsers)
-);
-
-
-
-currentUser=null;
-
-localStorage.removeItem("currentUser");
-
-
-alert("Account Deleted Successfully");
-
-
-show("login");
-
-
+    document.getElementById("login").classList.add("active");
 }
 // UPDATE DASHBOARD
 
-function update(){
+async function update(){
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    if(!currentUser) return;
 
-let user =
-users.find(u=>u.username==currentUser);
+    try{
 
-if(user){
+        const { doc, getDoc } =
+            window.firebaseFunctions;
 
-document.getElementById("welcome").innerHTML =
-"Welcome " + user.username;
+        const userRef =
+            doc(window.db, "users", currentUser);
 
-document.getElementById("balance").innerHTML =
-"₹" + user.balance;
+        const userSnap =
+            await getDoc(userRef);
 
-}
+        if(!userSnap.exists()) return;
 
-}
+        const user = userSnap.data();
 
-// DEPOSIT
+        document.getElementById("welcome").innerHTML =
+            "Welcome " + user.username;
 
-function deposit(){
+        document.getElementById("balance").innerHTML =
+            "₹" + user.balance;
 
-let amount =
-Number(document.getElementById("depositAmount").value);
+    }
+    catch(error){
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+        console.error("Dashboard update failed:", error);
 
-let user =
-users.find(u=>u.username==currentUser);
-
-if(amount>0){
-
-user.balance += amount;
-
-if(!user.transactions){
-
-user.transactions=[];
+    }
 
 }
 
-user.transactions.push({
+// deposit
 
-type:"Deposit",
+async function deposit(){
 
-from:"Bank",
+    let amount =
+        Number(document.getElementById("depositAmount").value);
 
-to:user.username,
+    if(amount <= 0){
+        alert("Enter Valid Amount");
+        return;
+    }
 
-amount:amount,
+    try{
 
-balance:user.balance,
+        const {
+            doc,
+            getDoc,
+            updateDoc
+        } = window.firebaseFunctions;
 
-date:new Date().toLocaleString()
+        const userRef =
+            doc(window.db, "users", currentUser);
 
-});
+        const userSnap =
+            await getDoc(userRef);
 
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
+        if(!userSnap.exists()){
+            alert("User Not Found");
+            return;
+        }
 
-document.getElementById("depositAmount").value="";
+        const user = userSnap.data();
 
-update();
+        let newBalance =
+            Number(user.balance) + amount;
 
-alert("Money Deposited Successfully");
+        let transactions =
+            user.transactions || [];
+
+        transactions.push({
+
+            type: "Deposit",
+            from: "Bank",
+            to: user.username,
+            amount: amount,
+            balance: newBalance,
+            date: new Date().toLocaleString()
+
+        });
+
+        await updateDoc(userRef, {
+
+            balance: newBalance,
+            transactions: transactions
+
+        });
+
+        // Input clear
+        document.getElementById("depositAmount").value = "";
+
+        // Dashboard balance update
+        document.getElementById("balance").innerHTML =
+            "₹" + newBalance;
+
+        alert("Money Deposited Successfully");
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Deposit failed: " +
+            error.message
+        );
+
+    }
 
 }
-else{
-
-alert("Enter Valid Amount");
-
-}
-
-}
-
 // WITHDRAW
 
-function withdraw(){
+async function withdraw(){
 
-let amount =
-Number(document.getElementById("withdrawAmount").value);
+    let amount =
+        Number(document.getElementById("withdrawAmount").value);
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    if(amount <= 0){
+        alert("Enter Valid Amount");
+        return;
+    }
 
-let user =
-users.find(u=>u.username==currentUser);
+    try{
 
-if(amount>0 && amount<=user.balance){
+        const {
+            doc,
+            getDoc,
+            updateDoc
+        } = window.firebaseFunctions;
 
-user.balance -= amount;
+        const userRef =
+            doc(window.db, "users", currentUser);
 
-if(!user.transactions){
+        const userSnap =
+            await getDoc(userRef);
 
-user.transactions=[];
+        if(!userSnap.exists()){
+            alert("User Not Found");
+            return;
+        }
 
-}
+        const user = userSnap.data();
 
-user.transactions.push({
+        let currentBalance =
+            Number(user.balance);
 
-type:"Withdraw",
+        // Balance check
+        if(amount > currentBalance){
+            alert("Insufficient Balance");
+            return;
+        }
 
-from:user.username,
+        let newBalance =
+            currentBalance - amount;
 
-to:"Cash",
+        let transactions =
+            user.transactions || [];
 
-amount:amount,
+        transactions.push({
 
-balance:user.balance,
+            type: "Withdraw",
+            from: user.username,
+            to: "Cash",
+            amount: amount,
+            balance: newBalance,
+            date: new Date().toLocaleString()
 
-date:new Date().toLocaleString()
+        });
 
-});
+        await updateDoc(userRef, {
 
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
+            balance: newBalance,
+            transactions: transactions
 
-document.getElementById("withdrawAmount").value="";
+        });
 
-update();
+        // Input clear
+        document.getElementById("withdrawAmount").value = "";
 
-alert("Withdraw Successful");
+        // Dashboard balance update
+        document.getElementById("balance").innerHTML =
+            "₹" + newBalance;
 
-}
-else{
+        alert("Withdraw Successful");
 
-alert("Insufficient Balance");
+    }
+    catch(error){
 
-}
+        console.error(error);
+
+        alert(
+            "Withdraw failed: " +
+            error.message
+        );
+
+    }
 
 }
 
 // TRANSFER
 
-function transfer(){
+async function transfer(){
 
-let receiver =
-document.getElementById("receiver").value;
+    let receiver =
+        document.getElementById("receiver").value.trim();
 
-let amount =
-Number(document.getElementById("transferAmount").value);
+    let amount =
+        Number(document.getElementById("transferAmount").value);
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    if(!receiver || amount <= 0){
+        alert("Enter valid receiver and amount");
+        return;
+    }
 
-let sender =
-users.find(u=>u.username==currentUser);
+    if(receiver === currentUser){
+        alert("You cannot transfer money to yourself");
+        return;
+    }
 
-let receiverUser =
-users.find(u=>u.username==receiver);
+    try{
 
-if(!receiverUser){
+        const {
+            doc,
+            getDoc,
+            updateDoc
+        } = window.firebaseFunctions;
 
-alert("Receiver Not Found");
-return;
 
-}
+        // Sender
+        const senderRef =
+            doc(window.db, "users", currentUser);
 
-if(amount<=0 || amount>sender.balance){
+        const senderSnap =
+            await getDoc(senderRef);
 
-alert("Invalid Amount");
-return;
+        if(!senderSnap.exists()){
+            alert("Sender account not found");
+            return;
+        }
 
-}
+        const sender =
+            senderSnap.data();
 
-if(!sender.transactions){
 
-sender.transactions=[];
+        // Receiver
+        const receiverRef =
+            doc(window.db, "users", receiver);
 
-}
+        const receiverSnap =
+            await getDoc(receiverRef);
 
-if(!receiverUser.transactions){
+        if(!receiverSnap.exists()){
+            alert("Receiver Not Found");
+            return;
+        }
 
-receiverUser.transactions=[];
+        const receiverUser =
+            receiverSnap.data();
 
-}
 
-sender.balance -= amount;
+        // Balance check
+        if(amount > Number(sender.balance)){
+            alert("Insufficient Balance");
+            return;
+        }
 
-receiverUser.balance += amount;
 
-// Sender History
+        // New balances
+        const senderBalance =
+            Number(sender.balance) - amount;
 
-sender.transactions.push({
+        const receiverBalance =
+            Number(receiverUser.balance) + amount;
 
-type:"Money Sent",
 
-from:sender.username,
+        // Sender transactions
+        let senderTransactions =
+            sender.transactions || [];
 
-to:receiverUser.username,
+        senderTransactions.push({
 
-amount:amount,
+            type: "Money Sent",
 
-balance:sender.balance,
+            from: sender.username,
 
-date:new Date().toLocaleString()
+            to: receiverUser.username,
 
-});
+            amount: amount,
 
-// Receiver History
+            balance: senderBalance,
 
-receiverUser.transactions.push({
+            date: new Date().toLocaleString()
 
-type:"Money Received",
+        });
 
-from:sender.username,
 
-to:receiverUser.username,
+        // Receiver transactions
+        let receiverTransactions =
+            receiverUser.transactions || [];
 
-amount:amount,
+        receiverTransactions.push({
 
-balance:receiverUser.balance,
+            type: "Money Received",
 
-date:new Date().toLocaleString()
+            from: sender.username,
 
-});
+            to: receiverUser.username,
 
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
+            amount: amount,
 
-document.getElementById("receiver").value="";
-document.getElementById("transferAmount").value="";
+            balance: receiverBalance,
 
-update();
+            date: new Date().toLocaleString()
 
-alert("Transfer Successful");
+        });
+
+
+        // Update Sender
+        await updateDoc(senderRef, {
+
+            balance: senderBalance,
+
+            transactions: senderTransactions
+
+        });
+
+
+        // Update Receiver
+        await updateDoc(receiverRef, {
+
+            balance: receiverBalance,
+
+            transactions: receiverTransactions
+
+        });
+
+
+        // Clear inputs
+        document.getElementById("receiver").value = "";
+
+        document.getElementById("transferAmount").value = "";
+
+
+        // Dashboard update
+        document.getElementById("balance").innerHTML =
+            "₹" + senderBalance;
+
+
+        alert("Transfer Successful");
+
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Transfer failed: " +
+            error.message
+        );
+
+    }
 
 }
 // TRANSACTION HISTORY
 
-function loadHistory(){
+async function loadHistory(){
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
+    if(!currentUser) return;
 
-let user =
-users.find(u=>u.username==currentUser);
+    let box =
+        document.getElementById("historyData");
 
-let box =
-document.getElementById("historyData");
+    box.innerHTML = "Loading...";
 
-box.innerHTML = "";
+    try{
 
-if(!user || !user.transactions || user.transactions.length==0){
+        const {
+            doc,
+            getDoc
+        } = window.firebaseFunctions;
 
-box.innerHTML =
-"<h3 style='text-align:center;'>No Transaction Found</h3>";
+        const userRef =
+            doc(window.db, "users", currentUser);
 
-return;
+        const userSnap =
+            await getDoc(userRef);
 
-}
+        if(!userSnap.exists()){
 
-let history =
-[...user.transactions].reverse();
+            box.innerHTML =
+                "<h3 style='text-align:center;'>User Not Found</h3>";
 
-history.forEach(t=>{
+            return;
+        }
 
-box.innerHTML += `
+        const user =
+            userSnap.data();
 
-<div class="transaction">
+        let transactions =
+            user.transactions || [];
 
-<div class="transaction-title">
-    ${t.type}
-</div>
+        box.innerHTML = "";
 
-<div>
-    <b>From:</b><br>
-    ${t.from}
-</div>
+        if(transactions.length === 0){
 
-<div>
-    <b>To:</b><br>
-    ${t.to}
-</div>
+            box.innerHTML =
+                "<h3 style='text-align:center;'>No Transaction Found</h3>";
 
-<div>
-    <b>Amount:</b><br>
-    ₹${t.amount}
-</div>
+            return;
+        }
 
-<div>
-    <b>Balance:</b><br>
-    ₹${t.balance}
-</div>
+        // Latest transaction first
+        let history =
+            [...transactions].reverse();
 
-<div>
-    <b>Date:</b><br>
-    ${t.date}
-</div>
+        history.forEach(t => {
 
-</div>
+            box.innerHTML += `
 
-`;
+            <div class="transaction">
 
-});
+                <div class="transaction-title">
+                    ${t.type}
+                </div>
 
-}
+                <div>
+                    <b>From:</b><br>
+                    ${t.from}
+                </div>
 
-// LOGOUT
+                <div>
+                    <b>To:</b><br>
+                    ${t.to}
+                </div>
 
-function logout(){
+                <div>
+                    <b>Amount:</b><br>
+                    ₹${t.amount}
+                </div>
 
-currentUser = null;
+                <div>
+                    <b>Balance:</b><br>
+                    ₹${t.balance}
+                </div>
 
-localStorage.removeItem("currentUser");
+                <div>
+                    <b>Date:</b><br>
+                    ${t.date}
+                </div>
 
-show("login");
+            </div>
 
-}
+            `;
 
-// AUTO LOGIN
+        });
 
-window.onload = function(){
+    }
+    catch(error){
 
-if(currentUser){
+        console.error(error);
 
-show("dashboard");
+        box.innerHTML =
+            "<h3 style='text-align:center;'>Failed to load history</h3>";
 
-}
+    }
 
 }
 
@@ -1215,8 +1340,135 @@ async function shareQR(){
     }
 
 }
-</script>
 
+//delete account
+async function deleteAccount(){
+
+    let confirmDelete =
+        confirm("Do you really want to delete your account?");
+
+    if(!confirmDelete){
+        return;
+    }
+
+    try{
+
+        const {
+            doc,
+            getDoc,
+            deleteDoc
+        } = window.firebaseFunctions;
+
+
+        const userRef =
+            doc(window.db, "users", currentUser);
+
+
+        const userSnap =
+            await getDoc(userRef);
+
+
+        if(!userSnap.exists()){
+
+            alert("Account Not Found");
+            return;
+
+        }
+
+
+        await deleteDoc(userRef);
+
+
+        // Current user clear
+        currentUser = null;
+
+        localStorage.removeItem("currentUser");
+
+
+        // Login inputs clear
+        document.getElementById("user").value = "";
+        document.getElementById("pass").value = "";
+
+
+        alert("Account Deleted Successfully");
+
+
+        show("login");
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Account deletion failed: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+</script>
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    updateDoc,
+    deleteDoc
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyAL917KBu-vclAvbaPlBXQahT527UsmHMQ",
+
+    authDomain: "bank-9f3f9.firebaseapp.com",
+
+    projectId: "bank-9f3f9",
+
+    storageBucket: "bank-9f3f9.firebasestorage.app",
+
+    messagingSenderId: "209029476796",
+
+    appId: "1:209029476796:web:f3ae9075e37e9fb497bbb9",
+
+    measurementId: "G-B67188DP47"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+// Firebase ko normal JavaScript ke liye available karna
+window.db = db;
+
+window.firebaseFunctions = {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    updateDoc,
+    deleteDoc
+};
+
+console.log("🔥 Firebase Connected!");
+
+</script>
 </body>
 </html>
 
